@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     NeuralNetwork.cpp \
+    PainWidget.cpp \
     main.cpp \
     MainWindow.cpp
 
 HEADERS += \
     MainWindow.hpp \
-    NeuralNetwork.hpp
+    NeuralNetwork.hpp \
+    PainWidget.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

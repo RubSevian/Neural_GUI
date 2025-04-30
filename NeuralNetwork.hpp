@@ -19,6 +19,8 @@ public:
 
 private:
 
+	const double a_lrelu = 0.01;
+
 	int m_inputSize;  //Кол-во входных нейронов
 	int m_hiddenSize; //Кол-во скрытых нейронов
 	int m_outputSize; //Кол-во выходных нейронов
@@ -37,13 +39,27 @@ private:
 	QVector<double> m_hiddenBiases; //Смещение скрытых нерйонов
 	QVector<double> m_outputBiases; //Смещение выходных нейронов
 
+	//	// Функция выбора функции активации
+	//	double activationFunc();
+
 	//Функция Активации
 
-	double ReLU(double x);
+	double LReLU(double x);
 
 	QRandomGenerator random;
 
 	//Функция прямого распространения
 
 	void feedForward(QVector<double> input);
+
+	// Фкнция обратного распростарнения
+
+	void backPropagation(QVector<double> output);
+
+	//Ошибки для обратного распространения
+	QVector<double> hiddenError;
+	QVector<double> outputError;
+
+	//Производные для обратного распространения
+	double lreluDerivate(double x);
 };

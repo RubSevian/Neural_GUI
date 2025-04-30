@@ -63,4 +63,7 @@ MainWindow::MainWindow(QWidget* parent)
 	mainWindowGridLayout->addWidget(groupBox3, 2, 0);
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow()
+{
+	delete Net;
+}

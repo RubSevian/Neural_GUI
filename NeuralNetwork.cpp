@@ -43,13 +43,20 @@ NeuralNetwork::NeuralNetwork(int inputNum, int hiddenNum, int outputNum)
 	}
 }
 
-double NeuralNetwork::ReLU(double x)
+double NeuralNetwork::LReLU(double x)
 {
-	double a = 0.01;
 	if (x > 0)
 		return x;
 	else
-		return x * a;
+		return x * a_lrelu;
+}
+
+double NeuralNetwork::lreluDerivate(double x)
+{
+	if (x > 0)
+		return 0;
+	else
+		return a_lrelu;
 }
 
 void NeuralNetwork::feedForward(QVector<double> input)
@@ -60,7 +67,7 @@ void NeuralNetwork::feedForward(QVector<double> input)
 		double activation = m_hiddenBiases[i]; // взвешенная сумма
 		for (int j = 0; j < m_inputSize; ++j)
 			activation += input[j] * m_inputHiddenWeight[i][j];
-		m_hiddenNeurons[i] = ReLU(activation);
+		m_hiddenNeurons[i] = LReLU(activation);
 	}
 
 	//Рассчет значений выходных нейронов
@@ -69,6 +76,38 @@ void NeuralNetwork::feedForward(QVector<double> input)
 		double activation = m_outputBiases[i]; // взвешенная сумма
 		for (int j = 0; j < m_hiddenSize; ++j)
 			activation += input[j] * m_hiddenOutputWeight[i][j];
-		m_outputNeurons[i] = ReLU(activation);
+		m_outputNeurons[i] = LReLU(activation);
 	}
+}
+
+void NeuralNetwork::backPropagation(QVector<double> output)
+{
+	double learningRate = 0.1;
+	outputError.resize(m_outputSize);
+	hiddenError.resize(m_hiddenSize);
+	// Ошибка выходного слоя
+	for (int i = 0; i < m_outputSize; ++i)
+		outputError[i] = (output[i] - m_outputNeurons[i]) * LReLU(m_outputNeurons[i]);
+
+	// Ошибка скрытого слоя
+	for (int i = 0; i < m_hiddenSize; ++i)
+	{
+		double error = 0;
+		for (int j = 0; j < m_outputSize; ++j)
+			error += outputError[j] * m_hiddenOutputWeight[i][j];
+		hiddenError[i] = error * LReLU(m_hiddenNeurons[i]);
+	}
+	//Обновление весов и смещений между скрытым и входным слоями
+
+	for (int i = 0; i < m_hiddenSize; ++i)
+		for (int j = 0; j < m_outputSize; ++j)
+			m_hiddenOutputWeight[i][j] += learningRate * outputError[j] * m_hiddenNeurons[i];
+	for (int i = 0; i < m_outputSize; ++i)
+		m_outputBiases[i] += learningRate * outputError[i];
+	//Обновление весов и смещений между входным и скрытым слоями
+	for (int i = 0; i < m_inputSize; ++i)
+		for (int j = 0; j < m_hiddenSize; ++j)
+			m_inputHiddenWeight[i][j] += learningRate * hiddenError[j] * m_inputNeurons[i];
+	for (int i = 0; i < m_hiddenSize; ++i)
+		m_hiddenBiases[i] += learningRate * hiddenError[i];
 }
